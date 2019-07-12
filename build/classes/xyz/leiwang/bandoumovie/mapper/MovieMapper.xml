@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="xyz.leiwang.bandoumovie.mapper.MovieMapper">
+
+	<resultMap id="BaseResultMap" type="xyz.leiwang.bandoumovie.po.Movie">
+		<id column="mid" property="mid" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="region" property="region" jdbcType="VARCHAR" />
+		<result column="image" property="image" jdbcType="VARCHAR" />
+		<result column="mdesc" property="mdesc" jdbcType="VARCHAR" />
+		<result column="date" property="date" jdbcType="TIMESTAMP" />
+		<result column="cid" property="cid" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<resultMap id="ResultMapWithUserList" type="xyz.leiwang.bandoumovie.po.Movie">
+		<id column="mid" property="mid" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="region" property="region" jdbcType="VARCHAR" />
+		<result column="image" property="image" jdbcType="VARCHAR" />
+		<result column="mdesc" property="mdesc" jdbcType="VARCHAR" />
+		<result column="date" property="date" jdbcType="TIMESTAMP" />
+		<result column="cid" property="cid" jdbcType="INTEGER" />
+		
+		<collection property="userList" ofType="xyz.leiwang.bandoumovie.po.User">
+			<id column="uid" property="uid" jdbcType="INTEGER" />
+			<result column="username" property="username" jdbcType="VARCHAR" />
+			<result column="password" property="password" jdbcType="VARCHAR" />
+			<result column="uname" property="uname" jdbcType="VARCHAR" />
+			<result column="email" property="email" jdbcType="VARCHAR" />
+			<result column="phone" property="phone" jdbcType="VARCHAR" />
+			<result column="addr" property="addr" jdbcType="VARCHAR" />
+			<result column="state" property="state" jdbcType="INTEGER" />
+			<result column="code" property="code" jdbcType="VARCHAR" />		
+		</collection>
+	</resultMap>
+	
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="fenye">
+		<if test="beginPage !=null">
+			<if test="end !=null">
+				limit #{beginPage},#{end}
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="Base_Column_List">
+		mid, name, region, image, mdesc, date, cid
+	</sql>
+	
+	<select id="countByExample" parameterType="xyz.leiwang.bandoumovie.po.MovieExample"
+		resultType="java.lang.Integer">
+		select count(*) from movie
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	
+	<select id="countMovieByCid" parameterType="int" resultType="java.lang.Integer">
+		select count(*) from movie where cid=#{value}
+	</select>
+	
+	<select id="findMovieByPageAndLimit" parameterType="int" resultMap="BaseResultMap">
+		select * from movie order by date desc limit #{0},#{1} 
+	</select>
+	
+	<select id="findMovieByCidAndPageAndLimit" parameterType="int" resultMap="BaseResultMap">
+		select m.* from movie m where m.cid=#{0} limit #{1},#{2}
+	</select>
+	
+	<select id="searchMovie" parameterType="String" resultMap="BaseResultMap">
+		select m.* from movie m where m.name like '%${value}%'
+	</select>
+	
+	<select id="findMovieByUid" parameterType="int" resultMap="BaseResultMap">
+		select * from movie where movie.mid in (select mid from watch where uid = #{0}) order by date desc 
+	</select>
+	
+	
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="xyz.leiwang.bandoumovie.po.MovieExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from movie
+<!-- 		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<include refid="fenye" /> -->
+	</select>
+	
+<!-- 	按主键查询基本字段 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from movie
+		where mid = #{mid,jdbcType=INTEGER}
+	</select>
+
+<!-- 	级联查询电影的用户列表 -->
+<!-- 	<select id="selectByPrimaryKey" resultMap="ResultMapWithUserList"
+		parameterType="java.lang.Integer">
+		select movie.*,user.*
+		from movie,user
+		where movie.mid = #{mid,jdbcType=INTEGER} and user.uid in (select uid from watch where mid = #{mid,jdbcType=INTEGER})
+	</select> -->
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from movie
+		where mid = #{mid,jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteByExample" parameterType="xyz.leiwang.bandoumovie.po.MovieExample">
+		delete from movie
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	
+	<insert id="insert" parameterType="xyz.leiwang.bandoumovie.po.Movie">
+		insert into movie (mid, name, region, image, mdesc, date, cid)
+		values (#{mid,jdbcType=INTEGER}, 
+				#{name,jdbcType=VARCHAR},
+				#{region,jdbcType=VARCHAR},
+				#{image,jdbcType=VARCHAR}, 
+				#{mdesc,jdbcType=VARCHAR},
+				#{date,jdbcType=TIMESTAMP},
+				#{cid,jdbcType=INTEGER})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="xyz.leiwang.bandoumovie.po.Movie">
+		insert into movie
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="mid != null">
+				mid,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="region != null">
+				region,
+			</if>
+			<if test="image != null">
+				image,
+			</if>
+			<if test="mdesc != null">
+				mdesc,
+			</if>
+			<if test="date != null">
+				date,
+			</if>
+			<if test="cid != null">
+				cid,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="mid != null">
+				#{mid,jdbcType=INTEGER},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="region != null">
+				#{region,jdbcType=VARCHAR},
+			</if>
+			<if test="image != null">
+				#{image,jdbcType=VARCHAR},
+			</if>
+			<if test="mdesc != null">
+				#{mdesc,jdbcType=VARCHAR},
+			</if>
+			<if test="date != null">
+				#{date,jdbcType=TIMESTAMP},
+			</if>
+			<if test="cid != null">
+				#{cid,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+
+	<insert id="saveWatchedMovie" parameterType="java.lang.Integer">
+		insert into watch (uid, mid)
+		values (#{uid,jdbcType=INTEGER},#{mid,jdbcType=INTEGER})
+	</insert>
+	
+	<update id="updateByExampleSelective" parameterType="map">
+		update movie
+		<set>
+			<if test="record.mid != null">
+				mid = #{record.mid,jdbcType=INTEGER},
+			</if>
+			<if test="record.name != null">
+				name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.region != null">
+				region = #{record.region,jdbcType=VARCHAR},
+			</if>
+			<if test="record.image != null">
+				image = #{record.image,jdbcType=VARCHAR},
+			</if>
+			<if test="record.mdesc != null">
+				mdesc = #{record.mdesc,jdbcType=VARCHAR},
+			</if>
+			<if test="record.date != null">
+				date = #{record.date,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.cid != null">
+				cid = #{record.cid,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	
+	<update id="updateByExample" parameterType="map">
+		update movie
+		set mid = #{record.mid,jdbcType=INTEGER},
+		name = #{record.name,jdbcType=VARCHAR},
+		region = #{record.region,jdbcType=VARCHAR},
+		image = #{record.image,jdbcType=VARCHAR},
+		mdesc = #{record.mdesc,jdbcType=VARCHAR},
+		date = #{record.date,jdbcType=TIMESTAMP},
+		cid = #{record.cid,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="xyz.leiwang.bandoumovie.po.Movie">
+		update movie
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="region != null">
+				region = #{region,jdbcType=VARCHAR},
+			</if>
+			<if test="image != null">
+				image = #{image,jdbcType=VARCHAR},
+			</if>
+			<if test="mdesc != null">
+				mdesc = #{mdesc,jdbcType=VARCHAR},
+			</if>
+			<if test="date != null">
+				date = #{date,jdbcType=TIMESTAMP},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=INTEGER},
+			</if>
+		</set>
+		where mid = #{mid,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="xyz.leiwang.bandoumovie.po.Movie">
+		update movie set
+		name = #{name,jdbcType=VARCHAR},
+		region = #{region,jdbcType=VARCHAR},
+		image = #{image,jdbcType=VARCHAR},
+		mdesc = #{mdesc,jdbcType=VARCHAR},
+		date = #{date,jdbcType=TIMESTAMP},
+		cid = #{cid,jdbcType=INTEGER}
+		where mid =
+		#{mid,jdbcType=INTEGER}
+	</update>
+</mapper>

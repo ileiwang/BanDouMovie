@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="xyz.leiwang.bandoumovie.mapper.CategoryMapper">
+
+	<resultMap type="xyz.leiwang.bandoumovie.po.Category" id="BaseResultMap">
+		<id column="cid" property="cid" jdbcType="INTEGER" />
+		<result column="cname" property="cname" jdbcType="VARCHAR" />
+	</resultMap>
+
+<!-- 	<resultMap type="xyz.leiwang.bandoumovie.po.Category" id="lazyLodingResultMap"> 
+		<id column="cid" property="cid" /> 
+		<result column="name" property="name"/> 
+		<collection property="movieList" ofType="xyz.leiwang.bandoumovie.po.Movie" 
+			select="xyz.leiwang.bandoumovie.mapper.MovieMapper.selectByCategoryId" column="cid"> 
+		</collection> 
+	</resultMap> -->
+	
+	<resultMap type="category" id="CategoryWithMovieList">
+		<id column="cid" property="cid"/>
+		<id column="cname" property="cname"/>
+		<collection property="movieList" ofType="xyz.leiwang.bandoumovie.po.Movie">
+			<id column="mid" property="mid" jdbcType="INTEGER" />
+			<result column="name" property="name" jdbcType="VARCHAR" />
+			<result column="region" property="region" jdbcType="VARCHAR" />
+			<result column="image" property="image" jdbcType="VARCHAR" />
+			<result column="mdesc" property="mdesc" jdbcType="VARCHAR" />
+			<result column="date" property="date" jdbcType="TIMESTAMP" />
+			<result column="cid" property="cid" jdbcType="INTEGER" />		
+		</collection>
+	</resultMap>
+	
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="Base_Column_List">
+		cid, cname
+	</sql>
+		
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="xyz.leiwang.bandoumovie.po.CategoryExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from category
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+
+	<select id="findAllCategoryWithMovieList" resultMap="CategoryWithMovieList">
+		select
+		category.* , movie.* from category , movie where
+		category.`cid` = movie.`cid`
+	</select>
+	
+	<select id="findAllCategory" resultMap="BaseResultMap">
+		select * from category
+	</select>
+
+<!-- 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from category
+		where cid = #{cid,jdbcType=INTEGER}
+	</select> -->
+	
+	<select id="selectByPrimaryKey" resultMap="CategoryWithMovieList"
+		parameterType="java.lang.Integer">
+		select
+		category.* , movie.* from category , movie where
+		category.`cid` = movie.`cid` and category.`cid` = #{cid,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		category
+		where cid = #{cid,jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteByExample" parameterType="xyz.leiwang.bandoumovie.po.CategoryExample">
+		delete from category
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	
+	<insert id="insert" parameterType="xyz.leiwang.bandoumovie.po.Category">
+		insert into category (cid,cname)
+		values (#{cid,jdbcType=INTEGER}, #{cname,jdbcType=VARCHAR})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="xyz.leiwang.bandoumovie.po.Category">
+		insert into category
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="cid != null">
+				cid,
+			</if>
+			<if test="cname != null">
+				cname,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="cid != null">
+				#{cid,jdbcType=INTEGER},
+			</if>
+			<if test="cname != null">
+				#{cname,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	<select id="countByExample" parameterType="xyz.leiwang.bandoumovie.po.CategoryExample"
+		resultType="java.lang.Integer">
+		select count(*) from category
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	
+	<update id="updateByExampleSelective" parameterType="map">
+		update category
+		<set>
+			<if test="record.cid != null">
+				cid = #{record.cid,jdbcType=INTEGER},
+			</if>
+			<if test="record.cname != null">
+				cname = #{record.cname,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	
+	<update id="updateByExample" parameterType="map">
+		update category
+		set cid = #{record.cid,jdbcType=INTEGER},
+		cname = #{record.cname,jdbcType=VARCHAR}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="xyz.leiwang.bandoumovie.po.Category">
+		update category
+		<set>
+			<if test="cname != null">
+				cname = #{cname,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where cid = #{cid,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="xyz.leiwang.bandoumovie.po.Category">
+		update category
+		set cname = #{cname,jdbcType=VARCHAR}
+		where cid = #{cid,jdbcType=INTEGER}
+	</update>
+	
+</mapper>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="xyz.leiwang.bandoumovie.mapper.GroupbuyMapper">
+
+	<resultMap type="xyz.leiwang.bandoumovie.po.Groupbuy" id="BaseResultMap">
+		<id column="gid" property="gid" jdbcType="INTEGER" />
+		<result column="mid" property="mid" jdbcType="INTEGER" />
+		<result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap type="xyz.leiwang.bandoumovie.po.Groupbuy" id="lazyLodingResultMap" extends="BaseResultMap">		
+		<association property="movie" javaType="xyz.leiwang.bandoumovie.po.Movie">
+			<id column="mid" property="mid" jdbcType="INTEGER" />
+			<result column="name" property="name" jdbcType="VARCHAR" />
+			<result column="region" property="region" jdbcType="VARCHAR" />
+			<result column="image" property="image" jdbcType="VARCHAR" />
+			<result column="mdesc" property="mdesc" jdbcType="VARCHAR" />
+			<result column="date" property="date" jdbcType="TIMESTAMP" />
+			<result column="cid" property="cid" jdbcType="VARCHAR" />
+		</association>
+		
+		<collection property="userList" ofType="xyz.leiwang.bandoumovie.po.User">
+			<id column="uid" property="uid" jdbcType="INTEGER" />
+			<result column="username" property="username" jdbcType="VARCHAR" />
+			<result column="password" property="password" jdbcType="VARCHAR" />
+			<result column="uname" property="uname" jdbcType="VARCHAR" />
+			<result column="email" property="email" jdbcType="VARCHAR" />
+			<result column="phone" property="phone" jdbcType="VARCHAR" />
+			<result column="addr" property="addr" jdbcType="VARCHAR" />
+			<result column="state" property="state" jdbcType="INTEGER" />
+			<result column="code" property="code" jdbcType="VARCHAR" />		
+		</collection>
+	</resultMap>
+	
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<sql id="Base_Column_List">
+		gid, mid
+	</sql>
+	
+
+<!-- 	<select id="findGroupbuyListByUid" resultMap="lazyLodingResultMap" parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where user.uid = #{uid,jdbcType=INTEGER} and groupbuy.mid = movie.mid;
+	</select>
+	
+	<select id="findGroupbuyListByMid" resultMap="lazyLodingResultMap" parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where user.uid = #{uid,jdbcType=INTEGER} and groupbuy.mid = movie.mid;
+	</select> -->
+	
+	<select id="findGroupbuyListByUid" resultMap="lazyLodingResultMap" parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where user.uid = #{uid,jdbcType=INTEGER} and groupbuy.mid = movie.mid;
+	</select>
+	
+	<select id="findAllGroupbuy" resultMap="lazyLodingResultMap" parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where groupbuy.mid = movie.mid;
+	</select>
+	
+	<select id="findGroupbuyListByMid" resultMap="lazyLodingResultMap" parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where movie.mid = #{mid,jdbcType=INTEGER} and groupbuy.mid = movie.mid;
+	</select>
+	
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from groupbuy
+		where gid = #{gid,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectByPrimaryKeyWithMovieAndUserList" resultMap="lazyLodingResultMap"
+		parameterType="java.lang.Integer">
+		select groupbuy.*,movie.*,user.* 
+		from groupbuy 
+		left join item on groupbuy.gid = item.gid 
+		left join user on item.uid = user.uid,movie 
+		where groupbuy.gid = #{gid,jdbcType=INTEGER} and groupbuy.mid = movie.mid
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from groupbuy
+		where gid = #{gid,jdbcType=INTEGER}
+	</delete>
+	
+<!-- 	创建团购 -->
+	<insert id="insert" parameterType="xyz.leiwang.bandoumovie.po.Groupbuy">
+		insert into groupbuy (gid,mid)
+		values (#{gid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER})
+	</insert>
+	
+<!-- 	用户加入团购 -->
+	<insert id="insertItem" parameterType="java.lang.Integer">
+		insert into item (gid,uid)
+		values (#{gid,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="xyz.leiwang.bandoumovie.po.Groupbuy">
+		insert into groupbuy
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="gid != null">
+				gid,
+			</if>
+			<if test="mid != null">
+				mid,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="gid != null">
+				#{gid,jdbcType=INTEGER},
+			</if>
+			<if test="mid != null">
+				#{mid,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+</mapper>

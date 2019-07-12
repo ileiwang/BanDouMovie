@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="xyz.leiwang.bandoumovie.mapper.RemarkMapper">
+	
+	<resultMap id="BaseResultMap" type="xyz.leiwang.bandoumovie.po.Remark">
+		<id column="rid" property="rid" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="remarkdate" property="remarkdate" jdbcType="TIMESTAMP" />
+		<result column="uid" property="uid" jdbcType="INTEGER" />
+		<result column="mid" property="mid" jdbcType="INTEGER" />
+		
+<!-- 		关联Remark对应的User -->
+		<association property="user" javaType="xyz.leiwang.bandoumovie.po.User">
+			<id column="uid" property="uid" jdbcType="INTEGER" />
+			<result column="username" property="username" jdbcType="VARCHAR" />
+			<result column="password" property="password" jdbcType="VARCHAR" />
+			<result column="uname" property="uname" jdbcType="VARCHAR" />
+			<result column="email" property="email" jdbcType="VARCHAR" />
+			<result column="phone" property="phone" jdbcType="VARCHAR" />
+			<result column="addr" property="addr" jdbcType="VARCHAR" />
+			<result column="state" property="state" jdbcType="INTEGER" />
+			<result column="code" property="code" jdbcType="VARCHAR" />
+		</association>
+		
+<!-- 		关联Remark对应的Movie -->
+		<association property="movie" javaType="xyz.leiwang.bandoumovie.po.Movie">
+			<id column="mid" property="mid" jdbcType="INTEGER" />
+			<result column="name" property="name" jdbcType="VARCHAR" />
+			<result column="region" property="region" jdbcType="VARCHAR" />
+			<result column="image" property="image" jdbcType="VARCHAR" />
+			<result column="mdesc" property="mdesc" jdbcType="VARCHAR" />
+			<result column="date" property="date" jdbcType="TIMESTAMP" />
+			<result column="cid" property="cid" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		rid, content, remarkdate, uid, mid
+	</sql>
+	
+	<select id="countAllRemark" parameterType="int" resultType="int">
+		SELECT count(*) FROM remark 
+	</select>
+	 
+	<select id="findRemarkByPage" parameterType="int"
+		resultMap="BaseResultMap">
+        SELECT remark.*,user.*,movie.* FROM remark ,user,movie WHERE 
+		remark.uid = user.`uid` and remark.mid = movie.`mid` order by remark.rid desc  limit #{0},#{1}
+	</select>
+	
+	<select id="findRemarkByMid" parameterType="int"
+		resultMap="BaseResultMap">
+        SELECT remark.*,user.*,movie.* FROM remark ,user,movie WHERE 
+		remark.uid = user.`uid` and remark.mid = movie.`mid` and movie.`mid` = #{mid,jdbcType=INTEGER} order by remark.rid desc
+	</select>
+	
+	<select id="findRemarkByPrimaryKey" parameterType="int"
+		resultMap="BaseResultMap">
+        SELECT remark.*,user.*,movie.* FROM remark ,user,movie WHERE 
+		remark.uid = user.`uid` and remark.mid = movie.`mid` and remark.`rid` = #{rid,jdbcType=INTEGER} order by remark.rid desc
+	</select>
+
+	<select id="findAllRemark" resultMap="BaseResultMap">
+        SELECT remark.*,user.*,movie.* FROM remark ,user,movie WHERE 
+		remark.uid = user.`uid` and remark.mid = movie.`mid` order by remark.rid desc
+	</select>
+		
+	<select id="findRemarkByUid" parameterType="int"
+		resultMap="BaseResultMap">
+        SELECT remark.*,user.*,movie.* FROM remark ,user,movie WHERE 
+		remark.uid = user.`uid` and remark.mid = movie.`mid` and user.`uid` = #{uid,jdbcType=INTEGER} order by remark.rid desc
+	</select>
+	 
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from remark
+		where rid = #{rid,jdbcType=INTEGER}
+	</delete>
+	 
+	<insert id="insert" parameterType="xyz.leiwang.bandoumovie.po.Remark"
+		useGeneratedKeys="true" keyProperty="rid">
+		insert into remark (rid, content, remarkdate, uid, mid)
+		values
+		(#{rid,jdbcType=INTEGER},
+		#{content,jdbcType=VARCHAR},
+		#{remarkdate,jdbcType=VARCHAR},
+		#{uid,jdbcType=INTEGER},
+		#{mid,jdbcType=INTEGER})
+	</insert>
+	
+	<update id="updateRemark" parameterType="xyz.leiwang.bandoumovie.po.Remark">
+		update remark set
+		content = #{content,jdbcType=VARCHAR},
+<!-- 		remarkdate = #{remarkdate,jdbcType=TIMESTAMP},
+		uid = #{uid,jdbcType=INTEGER},
+		mid = #{mid,jdbcType=INTEGER} -->
+		where rid =
+		#{rid,jdbcType=INTEGER}
+	</update>
+	
+	<insert id="insertSelective" parameterType="xyz.leiwang.bandoumovie.po.Remark">
+		insert into remark
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="rid != null">
+				rid,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+			<if test="remarkdate != null">
+				remarkdate,
+			</if>
+			<if test="uid != null">
+				uid,
+			</if>
+			<if test="mid != null">
+				mid,
+			</if>			
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="rid != null">
+				#{rid,jdbcType=INTEGER},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=VARCHAR},
+			</if>
+			<if test="remarkdate != null">
+				#{remarkdate,jdbcType=VARCHAR},
+			</if>
+			<if test="uid != null">
+				#{uid,jdbcType=INTEGER},
+			</if>
+			<if test="mid != null">
+				#{mid,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+</mapper>
